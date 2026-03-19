@@ -1,0 +1,31 @@
+POST http://localhost:3000/crearUsuario
+Content-Type: application/json
+
+{
+  "usuario": {
+    "nickname" : "juan205",
+    "correo": "juan@gmail.com",
+    "password": "123456",
+    "descripcion" : "Hola soy juan"
+  }
+}
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+[
+  "juan@gmail.com",
+  "123456"
+]
+
+###
+GET http://localhost:3000/darJuegos
+
+###
+GET http://localhost:3000/darUsuarios
+
+###
+DELETE http://localhost:3000/elimnarUsuario
+
+["ccc"]
