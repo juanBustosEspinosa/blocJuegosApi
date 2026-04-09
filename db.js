@@ -128,6 +128,32 @@ export function eliminarUsuario(correo)
 }
 
 
+export function buscarUsuario(nickname)
+{
+    return new Promise((ok,ko) => {
+        let conexion = null;
+        conectar()
+        .then((objConexion) => {
+            conexion = objConexion;
+            let coleccion = conexion.db("ProyectoFinal").collection("usuarios");
+            //Para que encuentre cualquier usuario con lo que nos ha puesto
+            //independientemente de que sea Mayúscualas o no
+            return (coleccion.find({
+                nickname: {
+                    $regex: "^" + nickname,
+                    $options: "i"
+                }
+            }).toArray());
+        })
+        .then(usuarios => ok(usuarios))
+        .catch((error) => ko(error))
+        .finally(() => {
+            if (conexion)
+                conexion.close();
+        })
+    })
+}
+
 /*---------JUEGOS-----------*/
 
 export function eliminarJuego(titulo, desarrollador)
@@ -187,3 +213,74 @@ export function darJuegos()
         })
     })
 }
+
+
+
+
+
+export function buscarJuegos(titulo)
+{
+    return new Promise((ok,ko) => {
+        let conexion = null;
+        conectar()
+        .then((objConexion) => {
+            conexion = objConexion;
+            let coleccion = conexion.db("ProyectoFinal").collection("juegos");
+            return (coleccion.find({
+                titulo: {
+                    $regex: "^" + titulo,
+                    $options: "i"
+                }
+            }).toArray());
+        })
+        .then(juegos => ok(juegos))
+        .catch((error) => ko(error))
+        .finally(() => {
+            if (conexion)
+                conexion.close();
+        })
+    })
+}
+
+export function inicioJuegos()
+{
+    return new Promise((ok,ko) => {
+        let conexion = null;
+        conectar()
+        .then((objConexion) => {
+            conexion = objConexion;
+            let coleccion = conexion.db("ProyectoFinal").collection("juegos");
+            return (coleccion.aggregate([
+                { $sample : {size : 5} }
+            ]).toArray());
+        })
+        .then(juegos => ok(juegos))
+        .catch((error) => ko(error))
+        .finally(() => {
+            if (conexion)
+                conexion.close();
+        })
+    })
+}
+
+export function actualizarJuego(juego)
+{
+    return new Promise((ok,ko) => {
+        let conexion = null;
+        conectar()
+        .then((objConexion) => {
+            conexion = objConexion;
+            let coleccion = conexion.db("ProyectoFinal").collection("juegos");
+            let id = juego._id;
+            delete juego._id
+            return (coleccion.updateOne({_id : new ObjectId(id)},{$set : juego}));
+        })
+        .then(juego => ok(juego))
+        .catch((error) => ko(error))
+        .finally(() => {
+            if (conexion)
+                conexion.close();
+        })
+    })
+}
+
