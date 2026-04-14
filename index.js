@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from "bcrypt";
 import multer from "multer";
-import { darUsuario, crearUsuario, loginUsuario, crearJuego,inicioJuegos,buscarJuegos ,darJuegos, darUsuarios, eliminarUsuario, eliminarJuego, actualizarUsuario, actualizarJuego, buscarUsuario} from './db.js';
+import { darUsuario, crearUsuario, loginUsuario, crearJuego,inicioJuegos,buscarJuegos ,darJuegos, darUsuarios, eliminarUsuario, eliminarJuego, actualizarUsuario, actualizarJuego, buscarUsuario, crearLike, eliminarlike, darLikes, darJuegosGustados} from './db.js';
 dotenv.config();
 
 const servidor = express();
@@ -89,8 +89,8 @@ servidor.post("/login", async (peticion,respuesta) => {
             correo : usuario.correo,
             descripcion : usuario.descripcion
         },process.env.SECRET);
-        let {nickname,descripcion} = usuario;
-        respuesta.status(201).json({nickname,correo,descripcion,token}); //cuidado si se cambia el status
+        let {nickname,descripcion,_id} = usuario;
+        respuesta.status(201).json({_id ,nickname,correo,descripcion,token}); //cuidado si se cambia el status
     }
     catch(error)
     {
@@ -109,11 +109,11 @@ servidor.use(verificarToken);
 servidor.delete("/eliminarUsuario", async (peticion,respuesta) => { 
     try
     {
-        let correo = peticion.body.correo;
+        let idUsuario = peticion.body.idUsuario;
         let usuario = peticion.usuario;
         if (usuario.correo != "admin@admin")
             respuesta.status(403).json({ mensaje : "Este usuario no puede acceder a esta informacion"});
-        await eliminarUsuario(correo);
+        await eliminarUsuario(idUsuario);
         respuesta.status(201).json({mensaje : "Se elimino correctamente"});
     }
     catch(error)
@@ -175,12 +175,11 @@ servidor.get("/buscarUsuarios", async (peticion,respuesta) => {
 servidor.delete("/eliminarJuego", async (peticion,respuesta) => { 
     try
     {
-        let titulo = peticion.body.titulo;
-        let desarrollador = peticion.body.desarrollador;
+        let idJuego = peticion.body.idJuego;
         let usuario = peticion.usuario;
         if (usuario.correo != "admin@admin")
             respuesta.status(403).json({ mensaje : "Este usuario no puede acceder a esta informacion"});
-        await eliminarJuego(titulo, desarrollador);
+        await eliminarJuego(idJuego);
         respuesta.status(201).json({mensaje : "Se elimino correctamente"});
     }
     catch(error)
@@ -234,10 +233,6 @@ servidor.get("/inicioJuegos", async (peticion,respuesta) => {
     }
 });
 
-
-
-
-
 servidor.get("/buscarJuegos", async (peticion,respuesta) => { 
     try
     {
@@ -260,6 +255,67 @@ servidor.put("/actualizarJuego",async (peticion, respuesta) => {
     }
     catch(error)
     {
+        respuesta.status(500).json({mensaje : "Error en el servidor"});
+    }
+});
+
+/*---------------LIKES------------------*/
+
+servidor.post("/crearLike", async (peticion,respuesta) => {
+    try
+    {
+        let like = peticion.body.Like;
+        await crearLike(like);
+        respuesta.status(201).json({mensaje : "Like Creado"})
+    }
+    catch(error)
+    {
+        console.log(error);
+        respuesta.status(500).json({mensaje : "Error en el servidor"});
+    }
+});
+
+servidor.delete("/eliminarlike", async (peticion,respuesta) => { 
+    try
+    {
+        let idUsuario = peticion.body.idUsuario;
+        let idJuego = peticion.body.idJuego;
+        
+        await eliminarlike(idUsuario, idJuego);
+        respuesta.status(201).json({mensaje : "Se elimino correctamente"});
+    }
+    catch(error)
+    {
+        console.log(error);
+        respuesta.status(500).json({mensaje : "Error en el servidor"});
+    }
+});
+
+servidor.get("/darLikes", async (peticion,respuesta) => { 
+    try
+    {
+        let idUsuario = peticion.query.idUsuario;
+        let likes = await darLikes(idUsuario);
+        respuesta.status(201).json(likes);
+    }
+    catch(error)
+    {
+        console.log(error);
+        respuesta.status(500).json({mensaje : "Error en el servidor"});
+    }
+});
+
+/*---------------LIKES-JUEGOS------------------*/
+servidor.get("/darJuegosLikes", async (peticion,respuesta) => { 
+    try
+    {
+        let idUsuario = peticion.query.idUsuario;
+        let juegos = await darJuegosGustados(idUsuario);
+        respuesta.status(201).json({juegos});
+    }
+    catch(error)
+    {
+        console.log(error);
         respuesta.status(500).json({mensaje : "Error en el servidor"});
     }
 });
