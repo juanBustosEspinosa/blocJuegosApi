@@ -196,7 +196,7 @@ servidor.post("/subirJuego", upload.single('imagen'), async (peticion,respuesta)
         let juego = peticion.body;
         juego.rutaImagen = peticion.file.path;
         await crearJuego(juego);
-        respuesta.status(201).json({mensaje : "Juego Creado"})
+        respuesta.status(201).json({mensaje : "Juego Creado", archivo: peticion.file.filename})
     }
     catch(error)
     {
