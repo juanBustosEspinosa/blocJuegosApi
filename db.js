@@ -194,7 +194,7 @@ export function crearJuego(juego)
             let coleccion = conexion.db("ProyectoFinal").collection("juegos");
             return (coleccion.insertOne({...juego}));
         })
-        .then(juego => ok(juego))
+        .then(resultado => ok(resultado.insertedId))
         .catch((error) => ko(error))
         .finally(() => {
             if (conexion)
@@ -222,7 +222,24 @@ export function darJuegos()
     })
 }
 
-
+export function darUnJuego(id)
+{
+    return new Promise((ok,ko) => {
+        let conexion = null;
+        conectar()
+        .then((objConexion) => {
+            conexion = objConexion;
+            let coleccion = conexion.db("ProyectoFinal").collection("juegos");
+            return coleccion.findOne({ _id: new ObjectId(id) });
+        })
+        .then(juegos => ok(juegos))
+        .catch((error) => ko(error))
+        .finally(() => {
+            if (conexion)
+                conexion.close();
+        })
+    })
+}
 
 
 

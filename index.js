@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from "bcrypt";
 import multer from "multer";
-import { darUsuario, crearUsuario, loginUsuario, crearJuego,inicioJuegos,buscarJuegos ,darJuegos, darUsuarios, eliminarUsuario, eliminarJuego, actualizarUsuario, actualizarJuego, buscarUsuario, crearLike, eliminarlike, darLikes, darJuegosGustados} from './db.js';
+import { darUnJuego,darUsuario, crearUsuario, loginUsuario, crearJuego,inicioJuegos,buscarJuegos ,darJuegos, darUsuarios, eliminarUsuario, eliminarJuego, actualizarUsuario, actualizarJuego, buscarUsuario, crearLike, eliminarlike, darLikes, darJuegosGustados} from './db.js';
 dotenv.config();
 
 const servidor = express();
@@ -195,8 +195,9 @@ servidor.post("/subirJuego", upload.single('imagen'), async (peticion,respuesta)
     {
         let juego = peticion.body;
         juego.rutaImagen = peticion.file.path;
-        await crearJuego(juego);
-        respuesta.status(201).json({mensaje : "Juego Creado", archivo: peticion.file.filename})
+        let id = await crearJuego(juego);
+        let juegocreado = await darUnJuego(id)
+        respuesta.status(201).json({mensaje : "Juego Creado", juegocreado})
     }
     catch(error)
     {
